@@ -1,0 +1,41 @@
+{
+  "plugins": ["typescript", "unicorn", "oxc", "import", "promise", "node"],
+  "categories": {
+    "correctness": "error"
+  },
+  "env": {
+    "node": true,
+    "builtin": true
+  },
+  "options": {
+    "denyWarnings": true,
+    "reportUnusedDisableDirectives": "error"
+  },
+  "rules": {
+    "complexity": [
+      "error",
+      {
+        "max": 25
+      }
+    ],
+    "import/no-cycle": "error",
+    "no-console": [
+      "error",
+      {
+        "allow": ["warn", "error"]
+      }
+    ],
+    "require-unicode-regexp": [
+      "error",
+      {
+        "requireFlag": "u"
+      }
+    ]
+  },
+  "overrides": [
+    {
+      "files": ["src/cli*.ts", "src/cli/**", "test/**", "scripts/**"],
+      "rules": { "no-console": "off" }
+    }
+  ]
+}

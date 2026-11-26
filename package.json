@@ -1,0 +1,88 @@
+{
+  "name": "@spiracss/image-pipeline",
+  "version": "0.1.0",
+  "description": "Image optimization and reusable adoption records for static sites",
+  "homepage": "https://github.com/zetsubo-dev/spiracss-image-pipeline#readme",
+  "keywords": [
+    "spiracss",
+    "image",
+    "image-optimization",
+    "webp",
+    "avif",
+    "sharp",
+    "svgo",
+    "static-site",
+    "cli"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24.22.3 <25 || >=26.1.0 <27"
+  },
+  "packageManager": "pnpm@12.21.0",
+  "publishConfig": {
+    "access": "public",
+    "tag": "latest"
+  },
+  "files": [
+    "dist"
+  ],
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./config": {
+      "types": "./dist/config.d.ts",
+      "import": "./dist/config.js"
+    },
+    "./adapter/v1": {
+      "types": "./dist/build.d.ts",
+      "import": "./dist/build.js"
+    },
+    "./watch": {
+      "types": "./dist/watch.d.ts",
+      "import": "./dist/watch.js"
+    }
+  },
+  "bin": {
+    "spiracss-image-pipeline": "./dist/cli.js"
+  },
+  "scripts": {
+    "clean": "node --input-type=module -e \"import { rmSync } from 'node:fs'; rmSync('dist', { recursive: true, force: true })\"",
+    "build": "pnpm run clean && tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit",
+    "lint": "oxlint .",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "test": "pnpm run build && node --test \"test/**/*.test.mjs\"",
+    "check:pack": "node scripts/check-pack.mjs",
+    "check": "pnpm run format:check && pnpm run lint && pnpm run typecheck && pnpm run test && pnpm run check:pack",
+    "prepack": "pnpm run build",
+    "prepublishOnly": "pnpm run build"
+  },
+  "dependencies": {
+    "chokidar": "6.0.0",
+    "css-tree": "3.2.1",
+    "ignore": "7.0.17",
+    "micromatch": "4.0.8",
+    "p-queue": "10.0.0",
+    "parse5": "8.1.1",
+    "probe-image-size": "7.5.0",
+    "sharp": "0.35.5",
+    "svgo": "4.1.0"
+  },
+  "devDependencies": {
+    "@types/css-tree": "3.2.0",
+    "@types/micromatch": "4.0.10",
+    "@types/node": "24.19.2",
+    "@types/probe-image-size": "7.2.5",
+    "typescript": "6.0.3",
+    "oxlint": "1.95.0",
+    "oxfmt": "0.80.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zetsubo-dev/spiracss-image-pipeline.git"
+  }
+}

@@ -1,0 +1,443 @@
+{
+  "index": {
+    "exports": [
+      "ImagePipelineError",
+      "ProcessOutputOptions",
+      "RecordSourceImagesOptions",
+      "SourceOptions",
+      "SourceResult",
+      "StoreEnvironment",
+      "StoreInput",
+      "StoreKeyInventory",
+      "StoreOptions",
+      "baselineSources",
+      "collectAdoptedStoreKeys",
+      "getImageDimensions",
+      "getImageSize",
+      "mergeSourceRecords",
+      "optimizeSources",
+      "parseSourceRecord",
+      "processOutput",
+      "pruneAdoptedStore",
+      "recordSourceImages",
+      "refreshAdoptedResult",
+      "sourceImageRecordName",
+      "startAdoptedStoreReport"
+    ],
+    "externalImports": {
+      "Sharp": ["sharp", "Sharp"],
+      "SvgoConfig": ["svgo", "Config"]
+    },
+    "declarations": {
+      "baselineSources": [
+        "export declare function baselineSources(options: SourceOptions): Promise<SourceResult[]>;"
+      ],
+      "BitmapOptions": [
+        "export interface BitmapOptions {\n    png: NonNullable<Parameters<Sharp[\"png\"]>[0]>;\n    jpeg: NonNullable<Parameters<Sharp[\"jpeg\"]>[0]>;\n    gif: NonNullable<Parameters<Sharp[\"gif\"]>[0]>;\n    webp: NonNullable<Parameters<Sharp[\"webp\"]>[0]> & {\n        minSize?: boolean;\n    };\n    avif: NonNullable<Parameters<Sharp[\"avif\"]>[0]> & {\n        minSize?: boolean;\n    };\n}"
+      ],
+      "collectAdoptedStoreKeys": [
+        "export declare function collectAdoptedStoreKeys(projectRoot: string, environment: StoreEnvironment): Promise<string[]>;"
+      ],
+      "Digest": ["export type Digest = string & {\n    readonly __brand: \"SHA-256\";\n};"],
+      "FormatOptions": ["type FormatOptions = BitmapOptions & {\n    svg: SvgOptions;\n};"],
+      "getImageDimensions": [
+        "export declare function getImageDimensions(bytes: Uint8Array): {\n    width: number;\n    height: number;\n    mime?: string;\n};"
+      ],
+      "getImageSize": [
+        "export declare function getImageSize(absPath: string): {\n    width: number;\n    height: number;\n    mime?: string;\n};"
+      ],
+      "ImageBuildOptions": [
+        "export interface ImageBuildOptions {\n    projectRoot: string;\n    config?: ImageConfig;\n    usages?: readonly ImageUsage[];\n    adoptedStoreDir?: string;\n    outputDir?: string;\n    caseInsensitiveOutputs?: boolean;\n    cacheDir?: string;\n    localCache?: LocalCacheLimits;\n    sourceRecordPath?: string;\n    skipProcessing?: boolean;\n    onWarning?: (message: string) => void;\n    onStoreTrials?: (input: StoreTrialInput, keys: readonly Digest[]) => Promise<void>;\n    urlFor?: (destination: string, use: ImageUse) => string;\n}"
+      ],
+      "ImageConfig": [
+        "export interface ImageConfig {\n    formats?: Partial<FormatOptions>;\n    dev?: {\n        autoMinify?: boolean;\n        ignoreAllAutoOptimize?: readonly string[];\n        customOverrides?: readonly ImageOverride[];\n    };\n    build?: {\n        outputFormat?: \"webp\" | \"avif\" | false;\n        ignoreSrcConversion?: readonly string[];\n        ignoreDistConversion?: readonly string[];\n        ignoreDistMinify?: readonly string[];\n        customOverridesDist?: readonly ImageOverride[];\n        preserveFormatFor?: readonly ImageUsage[];\n    };\n    jobs?: number;\n}"
+      ],
+      "ImageFormat": [
+        "export type ImageFormat = \"png\" | \"jpeg\" | \"gif\" | \"webp\" | \"avif\" | \"svg\" | \"ico\";"
+      ],
+      "ImageOverride": [
+        "export type ImageOverride = {\n    [Format in keyof FormatOptions]: {\n        match: string | RegExp;\n        format: Format;\n        options?: Format extends \"svg\" ? Partial<SvgOptions> : FormatOptions[Format];\n    };\n}[keyof FormatOptions];"
+      ],
+      "ImagePipelineError": [
+        "export declare class ImagePipelineError extends Error {\n    readonly name = \"ImagePipelineError\";\n    readonly code: ImagePipelineErrorCode;\n    constructor(code: ImagePipelineErrorCode, message: string, options?: ErrorOptions);\n}"
+      ],
+      "ImagePipelineErrorCode": [
+        "type ImagePipelineErrorCode = \"INVALID_COMMAND\" | \"INVALID_STORE_KEY\" | \"INVALID_STORE_ENVIRONMENT\" | \"INCOMPLETE_STORE_INPUTS\" | \"STORE_TRIAL_NOT_FOUND\" | SvgInlineErrorCode;"
+      ],
+      "ImageUsage": ["export type ImageUsage = string;"],
+      "ImageUse": [
+        "export interface ImageUse {\n    input: {\n        kind: \"generated\";\n        file: string;\n        logicalName: string;\n        owner?: string;\n        bytes?: Uint8Array;\n    } | {\n        kind: \"fixed-public\";\n        file: string;\n    };\n    logicalPlacement: string;\n    usage: ImageUsage;\n    excludeConversion?: boolean;\n    preserveSourceBytes?: boolean;\n    hashLength?: number;\n}"
+      ],
+      "LocalCacheLimits": [
+        "export interface LocalCacheLimits {\n    maxBytes?: number;\n    maxEntries?: number;\n}"
+      ],
+      "mergeSourceRecords": [
+        "export declare function mergeSourceRecords(options: {\n    projectRoot: string;\n    file: string;\n    sourceRecordLockPath?: string;\n    onWarning?: (message: string) => void;\n}): Promise<number>;"
+      ],
+      "optimizeSources": [
+        "export declare function optimizeSources(options: SourceOptions): Promise<SourceResult[]>;"
+      ],
+      "parseSourceRecord": [
+        "export declare function parseSourceRecord(text: string): SourceRecord;"
+      ],
+      "processOutput": [
+        "export declare function processOutput(options: ProcessOutputOptions): Promise<{\n    missing: string[];\n    processed: string[];\n    retained: {\n        file: string;\n        reason: string;\n    }[];\n}>;"
+      ],
+      "ProcessOutputOptions": [
+        "export interface ProcessOutputOptions extends ImageBuildOptions {\n    outputDir: string;\n    stateDir?: string;\n    publicCopies: readonly {\n        source: string;\n        destination: string;\n    }[];\n    editableDocuments: readonly string[];\n    inventory?: {\n        completeReferences: boolean;\n        generatedImages: readonly {\n            output: string;\n            logicalName: string;\n        }[];\n    };\n    base?: string;\n    siteOrigin?: string;\n}"
+      ],
+      "pruneAdoptedStore": [
+        "export declare function pruneAdoptedStore(options: StoreLocation & {\n    loadEnvironments(): Promise<readonly (StoreEnvironment | StoreKeyInventory)[]>;\n    apply?: boolean;\n}): Promise<{\n    records: {\n        key: Digest;\n        file: string;\n        digest: Digest | undefined;\n        size: number;\n    }[];\n    blobs: {\n        size: number;\n        file: string;\n        key: Digest;\n    }[];\n    bytes: number;\n    missing: string[];\n}>;"
+      ],
+      "recordSourceImages": [
+        "export declare function recordSourceImages(options: RecordSourceImagesOptions): Promise<number>;"
+      ],
+      "RecordSourceImagesOptions": [
+        "export interface RecordSourceImagesOptions {\n    projectRoot: string;\n    digests: Iterable<string>;\n    processingSignature?: string;\n    sourceRecordLockPath?: string;\n    signal?: AbortSignal;\n    onWarning?: (message: string) => void;\n}"
+      ],
+      "refreshAdoptedResult": [
+        "export declare function refreshAdoptedResult(options: StoreOptions & {\n    key: string;\n    environment?: string;\n}): Promise<{\n    environment: string;\n    key: Digest;\n    result: \"adopted\" | \"same-as-source\" | \"skipped-min-size\";\n}>;"
+      ],
+      "sourceImageRecordName": [
+        "export declare const sourceImageRecordName = \".source-image-processed.sha256\";"
+      ],
+      "SourceOptions": [
+        "export interface SourceOptions {\n    projectRoot: string;\n    roots: readonly string[];\n    publicRoots: readonly string[];\n    cacheDir?: string;\n    allowMissingRoots?: boolean;\n    allowedRoots?: readonly string[];\n    sourceFormats?: readonly Exclude<ImageFormat, \"ico\">[];\n    sourceLockDir?: string;\n    sourceRecordLockPath?: string;\n    config?: ImageConfig;\n    signal?: AbortSignal;\n    onWarning?: (message: string) => void;\n}"
+      ],
+      "SourceRecord": ["export type SourceRecord = Map<Digest, Set<Digest>>;"],
+      "SourceResult": [
+        "export interface SourceResult {\n    file: string;\n    status: \"optimized\" | \"baseline\" | \"retained\" | \"protected\" | \"recovered\";\n}"
+      ],
+      "startAdoptedStoreReport": [
+        "export declare function startAdoptedStoreReport(projectRoot: string, adoptedStoreDir: string, checkCommand?: string): Promise<() => Promise<void>>;"
+      ],
+      "StoreEnvironment": [
+        "export interface StoreEnvironment {\n    name: string;\n    config?: ImageConfig | undefined;\n    usages?: readonly ImageUsage[] | undefined;\n    inputs: readonly StoreInput[];\n    missing?: readonly string[];\n}"
+      ],
+      "StoreInput": [
+        "export type StoreInput = Omit<StoreTrialInput, \"usage\"> & Partial<Pick<StoreTrialInput, \"usage\">>;"
+      ],
+      "StoreKeyInventory": [
+        "export interface StoreKeyInventory {\n    name: string;\n    keys: readonly string[];\n    missing?: readonly string[];\n}"
+      ],
+      "StoreLocation": [
+        "type StoreLocation = Pick<StoreOptions, \"projectRoot\" | \"adoptedStoreDir\" | \"onWarning\">;"
+      ],
+      "StoreOptions": [
+        "export interface StoreOptions {\n    projectRoot: string;\n    adoptedStoreDir: string;\n    onWarning?: (message: string) => void;\n    loadEnvironments(): Promise<readonly StoreEnvironment[]>;\n}"
+      ],
+      "StoreTrialInput": [
+        "export interface StoreTrialInput {\n    file: string;\n    logicalName: string;\n    logicalPlacement: string;\n    usage: ImageUsage;\n    excludeConversion?: boolean;\n}"
+      ],
+      "SvgInlineErrorCode": [
+        "type SvgInlineErrorCode = \"SVG_INLINE_INVALID_SOURCE\" | \"SVG_INLINE_INVALID_ID\" | \"SVG_INLINE_DUPLICATE_ID\" | \"SVG_INLINE_UNSAFE_ATTRIBUTE\" | \"SVG_INLINE_UNSAFE_ELEMENT\" | \"SVG_INLINE_OPTIMIZE_FAILED\" | \"SVG_INLINE_DANGLING_ID_REFERENCE\";"
+      ],
+      "SvgOptions": [
+        "export interface SvgOptions {\n    svgoConfig: SvgoConfig;\n    dimensionsMode?: \"round\" | \"none\";\n}"
+      ]
+    }
+  },
+  "config": {
+    "exports": [
+      "BitmapOptions",
+      "ImageConfig",
+      "ImageOverride",
+      "ImageUsage",
+      "SvgOptions",
+      "assertImageOverrideFamily",
+      "createImageDistIgnoreMatcher",
+      "defineImageConfig",
+      "normalizeBitmapOptions",
+      "resolveAutomaticImageFormat",
+      "resolveImageConfig",
+      "resolveImageOverride",
+      "standardImageUsages"
+    ],
+    "externalImports": {
+      "Sharp": ["sharp", "Sharp"],
+      "SvgoConfig": ["svgo", "Config"]
+    },
+    "declarations": {
+      "assertImageOverrideFamily": [
+        "export declare function assertImageOverrideFamily(sourceExtension: string, targetFormat: string): void;"
+      ],
+      "BitmapOptions": [
+        "export interface BitmapOptions {\n    png: NonNullable<Parameters<Sharp[\"png\"]>[0]>;\n    jpeg: NonNullable<Parameters<Sharp[\"jpeg\"]>[0]>;\n    gif: NonNullable<Parameters<Sharp[\"gif\"]>[0]>;\n    webp: NonNullable<Parameters<Sharp[\"webp\"]>[0]> & {\n        minSize?: boolean;\n    };\n    avif: NonNullable<Parameters<Sharp[\"avif\"]>[0]> & {\n        minSize?: boolean;\n    };\n}"
+      ],
+      "createImageDistIgnoreMatcher": [
+        "export declare function createImageDistIgnoreMatcher(patterns: readonly string[]): (relative: string) => boolean;"
+      ],
+      "defineImageConfig": [
+        "export declare function defineImageConfig(config: ImageConfig): ImageConfig;"
+      ],
+      "FormatOptions": ["type FormatOptions = BitmapOptions & {\n    svg: SvgOptions;\n};"],
+      "ImageConfig": [
+        "export interface ImageConfig {\n    formats?: Partial<FormatOptions>;\n    dev?: {\n        autoMinify?: boolean;\n        ignoreAllAutoOptimize?: readonly string[];\n        customOverrides?: readonly ImageOverride[];\n    };\n    build?: {\n        outputFormat?: \"webp\" | \"avif\" | false;\n        ignoreSrcConversion?: readonly string[];\n        ignoreDistConversion?: readonly string[];\n        ignoreDistMinify?: readonly string[];\n        customOverridesDist?: readonly ImageOverride[];\n        preserveFormatFor?: readonly ImageUsage[];\n    };\n    jobs?: number;\n}"
+      ],
+      "ImageOverride": [
+        "export type ImageOverride = {\n    [Format in keyof FormatOptions]: {\n        match: string | RegExp;\n        format: Format;\n        options?: Format extends \"svg\" ? Partial<SvgOptions> : FormatOptions[Format];\n    };\n}[keyof FormatOptions];"
+      ],
+      "ImageUsage": ["export type ImageUsage = string;"],
+      "normalizeBitmapOptions": [
+        "export declare function normalizeBitmapOptions<T extends object>(options: T): T;"
+      ],
+      "resolveAutomaticImageFormat": [
+        "export declare function resolveAutomaticImageFormat(sourceFormat: string, outputFormat: \"avif\" | \"webp\" | false): \"webp\" | \"avif\" | null;"
+      ],
+      "resolveImageConfig": [
+        "export declare function resolveImageConfig(config?: ImageConfig, usages?: readonly ImageUsage[]): {\n    formats: {\n        png: NonNullable<Parameters<Sharp[\"png\"]>[0]>;\n        jpeg: NonNullable<Parameters<Sharp[\"jpeg\"]>[0]>;\n        gif: NonNullable<Parameters<Sharp[\"gif\"]>[0]>;\n        webp: NonNullable<Parameters<Sharp[\"webp\"]>[0]> & {\n            minSize?: boolean;\n        };\n        avif: NonNullable<Parameters<Sharp[\"avif\"]>[0]> & {\n            minSize?: boolean;\n        };\n        svg: SvgOptions;\n    };\n    dev: {\n        autoMinify: boolean;\n        ignoreAllAutoOptimize: readonly string[];\n        customOverrides: readonly ImageOverride[];\n    };\n    build: {\n        outputFormat: false | \"webp\" | \"avif\";\n        ignoreSrcConversion: readonly string[];\n        ignoreDistConversion: readonly string[];\n        ignoreDistMinify: readonly string[];\n        customOverridesDist: readonly ImageOverride[];\n        preserveFormatFor: readonly string[];\n    };\n    jobs: number;\n};"
+      ],
+      "resolveImageOverride": [
+        "export declare function resolveImageOverride<T extends {\n    match: string | RegExp;\n}>(overrides: readonly T[], candidates: readonly string[]): T | undefined;"
+      ],
+      "standardImageUsages": [
+        "export declare const standardImageUsages: readonly [\n    \"body\",\n    \"ogp\",\n    \"twitter\",\n    \"favicon\",\n    \"apple-touch-icon\",\n    \"manifest-icon\",\n    \"json-ld\"\n];"
+      ],
+      "SvgOptions": [
+        "export interface SvgOptions {\n    svgoConfig: SvgoConfig;\n    dimensionsMode?: \"round\" | \"none\";\n}"
+      ]
+    }
+  },
+  "build": {
+    "exports": [
+      "BITMAP_MINIFY_PIPELINE_VERSION",
+      "DocumentReferences",
+      "FixedCopy",
+      "IMAGE_OVERRIDE_PIPELINE_VERSIONS",
+      "ImageBuild",
+      "ImageBuildOptions",
+      "ImagePlacement",
+      "ImageUse",
+      "LocalCacheLimits",
+      "ManifestImagePlan",
+      "ManifestPlanOptions",
+      "ManifestSelections",
+      "ManifestUnknownReason",
+      "OutputReference",
+      "PlannedManifestReference",
+      "PreparedImage",
+      "PreparedInlineSvg",
+      "Publication",
+      "PublicationDocument",
+      "PublicationUsageReference",
+      "ResolvedImage",
+      "SVG_PIPELINE_VERSION",
+      "SVG_PRESERVE_ASPECT",
+      "StoreTrialInput",
+      "VerifyPublicationOptions",
+      "buildBitmapProcessingSignature",
+      "buildImageConfigSignature",
+      "buildSvgConfigSignature",
+      "configureImageRuntime",
+      "createImageBuild",
+      "createImageJobScheduler",
+      "getImageCodecVersions",
+      "inspectHtml",
+      "inspectJson",
+      "inspectManifestImages",
+      "locateOutputUrl",
+      "planManifestImages",
+      "prepareInlineSvg",
+      "resolveReference",
+      "rewriteManifestImages"
+    ],
+    "externalImports": {
+      "Sharp": ["sharp", "Sharp"],
+      "SvgoConfig": ["svgo", "Config"]
+    },
+    "declarations": {
+      "BITMAP_MINIFY_PIPELINE_VERSION": [
+        "export declare const BITMAP_MINIFY_PIPELINE_VERSION = 3;"
+      ],
+      "BitmapOptions": [
+        "export interface BitmapOptions {\n    png: NonNullable<Parameters<Sharp[\"png\"]>[0]>;\n    jpeg: NonNullable<Parameters<Sharp[\"jpeg\"]>[0]>;\n    gif: NonNullable<Parameters<Sharp[\"gif\"]>[0]>;\n    webp: NonNullable<Parameters<Sharp[\"webp\"]>[0]> & {\n        minSize?: boolean;\n    };\n    avif: NonNullable<Parameters<Sharp[\"avif\"]>[0]> & {\n        minSize?: boolean;\n    };\n}"
+      ],
+      "buildBitmapProcessingSignature": [
+        "export declare function buildBitmapProcessingSignature(format: string, options: object, kind: \"minify\" | \"override\"): string;"
+      ],
+      "buildImageConfigSignature": [
+        "export declare function buildImageConfigSignature(snapshot: unknown): string;"
+      ],
+      "buildSvgConfigSignature": [
+        "export declare function buildSvgConfigSignature(svgCfg: {\n    svgoConfig: unknown;\n    dimensionsMode?: unknown;\n}, pipelineVersion?: number, svgoVersion?: string): string;"
+      ],
+      "configureImageRuntime": [
+        "export declare function configureImageRuntime(options: {\n    concurrency?: number;\n    cache?: Parameters<typeof sharp.cache>[0];\n}): void;"
+      ],
+      "createImageBuild": [
+        "export declare function createImageBuild(options: ImageBuildOptions): ImageBuild;"
+      ],
+      "createImageJobScheduler": [
+        "export declare function createImageJobScheduler(requested: number): <T>(task: () => Promise<T>) => Promise<Awaited<T>>;"
+      ],
+      "Digest": ["export type Digest = string & {\n    readonly __brand: \"SHA-256\";\n};"],
+      "DocumentReferences": [
+        "export interface DocumentReferences {\n    references: OutputReference[];\n    unknown: boolean;\n    integrity?: string[];\n    manifests?: string[];\n    baseHref?: string;\n}"
+      ],
+      "Edit": [
+        "export interface Edit {\n    start: number;\n    end: number;\n    value: string;\n}"
+      ],
+      "FixedCopy": ["export interface FixedCopy {\n    file: string;\n    destination: string;\n}"],
+      "FormatOptions": ["type FormatOptions = BitmapOptions & {\n    svg: SvgOptions;\n};"],
+      "getImageCodecVersions": [
+        "export declare function getImageCodecVersions(): {\n    sharp: {\n        aom?: string | undefined;\n        archive?: string | undefined;\n        cairo?: string | undefined;\n        cgif?: string | undefined;\n        exif?: string | undefined;\n        expat?: string | undefined;\n        ffi?: string | undefined;\n        fontconfig?: string | undefined;\n        freetype?: string | undefined;\n        fribidi?: string | undefined;\n        glib?: string | undefined;\n        harfbuzz?: string | undefined;\n        heif?: string | undefined;\n        highway?: string | undefined;\n        imagequant?: string | undefined;\n        lcms?: string | undefined;\n        mozjpeg?: string | undefined;\n        pango?: string | undefined;\n        pixman?: string | undefined;\n        png?: string | undefined;\n        \"proxy-libintl\"?: string | undefined;\n        rsvg?: string | undefined;\n        sharp: string;\n        spng?: string | undefined;\n        tiff?: string | undefined;\n        vips: string;\n        webp?: string | undefined;\n        xml?: string | undefined;\n        \"zlib-ng\"?: string | undefined;\n    };\n    svgo: string;\n};"
+      ],
+      "IMAGE_OVERRIDE_PIPELINE_VERSIONS": [
+        "export declare const IMAGE_OVERRIDE_PIPELINE_VERSIONS: {\n    readonly bitmap: 2;\n    readonly svg: 2;\n};"
+      ],
+      "ImageBuild": [
+        "export interface ImageBuild {\n    resolveUse: (use: ImageUse) => Promise<ResolvedImage>;\n    prepareUse: (use: ImageUse) => Promise<PreparedImage>;\n    publish(prepared: PreparedImage, placement: ImagePlacement): ResolvedImage;\n    getPublications(): readonly Publication[];\n    describeTrials(use: ImageUse): Promise<{\n        source: ImageInputBytes;\n        trial: ProcessingTrial;\n        conditions: ImageTrial;\n        key: Digest;\n    }[]>;\n    registerFixedCopies(copies: readonly FixedCopy[]): Promise<void>;\n    getStatistics: () => {\n        encodes: number;\n        sharedHits: number;\n        localHits: number;\n        joinedTrials: number;\n        sourceRecordHits: number;\n    };\n    getPublishedDestinations(): string[];\n    getUnusedOutputs(): string[];\n    checkpoint(file: string): Promise<void>;\n    resume(file: string): Promise<void>;\n    verifyPublication(outputDirectory: string, declaration?: VerifyPublicationOptions): Promise<void>;\n}"
+      ],
+      "ImageBuildOptions": [
+        "export interface ImageBuildOptions {\n    projectRoot: string;\n    config?: ImageConfig;\n    usages?: readonly ImageUsage[];\n    adoptedStoreDir?: string;\n    outputDir?: string;\n    caseInsensitiveOutputs?: boolean;\n    cacheDir?: string;\n    localCache?: LocalCacheLimits;\n    sourceRecordPath?: string;\n    skipProcessing?: boolean;\n    onWarning?: (message: string) => void;\n    onStoreTrials?: (input: StoreTrialInput, keys: readonly Digest[]) => Promise<void>;\n    urlFor?: (destination: string, use: ImageUse) => string;\n}"
+      ],
+      "ImageConfig": [
+        "export interface ImageConfig {\n    formats?: Partial<FormatOptions>;\n    dev?: {\n        autoMinify?: boolean;\n        ignoreAllAutoOptimize?: readonly string[];\n        customOverrides?: readonly ImageOverride[];\n    };\n    build?: {\n        outputFormat?: \"webp\" | \"avif\" | false;\n        ignoreSrcConversion?: readonly string[];\n        ignoreDistConversion?: readonly string[];\n        ignoreDistMinify?: readonly string[];\n        customOverridesDist?: readonly ImageOverride[];\n        preserveFormatFor?: readonly ImageUsage[];\n    };\n    jobs?: number;\n}"
+      ],
+      "ImageFormat": [
+        "export type ImageFormat = \"png\" | \"jpeg\" | \"gif\" | \"webp\" | \"avif\" | \"svg\" | \"ico\";"
+      ],
+      "ImageInputBytes": [
+        "export interface ImageInputBytes {\n    bytes: Buffer;\n    digest: Digest;\n}"
+      ],
+      "ImageOverride": [
+        "export type ImageOverride = {\n    [Format in keyof FormatOptions]: {\n        match: string | RegExp;\n        format: Format;\n        options?: Format extends \"svg\" ? Partial<SvgOptions> : FormatOptions[Format];\n    };\n}[keyof FormatOptions];"
+      ],
+      "ImagePlacement": [
+        "export interface ImagePlacement {\n    owner: string;\n    generated: boolean;\n    destination: string;\n    url: string;\n}"
+      ],
+      "ImageTrial": [
+        "export type ImageTrial = {\n    version: 1;\n    format: Exclude<ImageFormat, \"ico\">;\n    operation: \"minify\" | \"convert\" | \"override\";\n    adoption: \"smaller\" | \"always\";\n    options: Json;\n};"
+      ],
+      "ImageUsage": ["export type ImageUsage = string;"],
+      "ImageUse": [
+        "export interface ImageUse {\n    input: {\n        kind: \"generated\";\n        file: string;\n        logicalName: string;\n        owner?: string;\n        bytes?: Uint8Array;\n    } | {\n        kind: \"fixed-public\";\n        file: string;\n    };\n    logicalPlacement: string;\n    usage: ImageUsage;\n    excludeConversion?: boolean;\n    preserveSourceBytes?: boolean;\n    hashLength?: number;\n}"
+      ],
+      "inspectHtml": [
+        "export declare function inspectHtml(text: string, verification?: boolean): DocumentReferences;"
+      ],
+      "inspectJson": [
+        "export declare function inspectJson(text: string, mode: \"manifest\" | \"json-ld\", offset?: number): DocumentReferences;"
+      ],
+      "inspectManifestImages": [
+        "export declare function inspectManifestImages(text: string): DocumentReferences;"
+      ],
+      "Json": [
+        "export type Json = null | string | number | boolean | Json[] | {\n    [key: string]: Json;\n};"
+      ],
+      "LocalCacheLimits": [
+        "export interface LocalCacheLimits {\n    maxBytes?: number;\n    maxEntries?: number;\n}"
+      ],
+      "locateOutputUrl": [
+        "export declare function locateOutputUrl(url: string, document: string, base: string, siteOrigin?: string, baseHref?: string): {\n    file: string;\n    suffix: string;\n} | undefined;"
+      ],
+      "ManifestImagePlan": [
+        "export interface ManifestImagePlan {\n    references: PlannedManifestReference[];\n    manifests: string[];\n    unknown: boolean;\n    unknownReasons: readonly ManifestUnknownReason[];\n    rewrite(selections: ManifestSelections): string;\n}"
+      ],
+      "ManifestPlanOptions": [
+        "export interface ManifestPlanOptions {\n    document: string;\n    base: string;\n    siteOrigin?: string;\n    kind?: \"html\" | \"manifest\";\n    mode?: \"default\" | \"verify\";\n    readOnly?: boolean;\n}"
+      ],
+      "ManifestSelections": [
+        "export type ManifestSelections = ReadonlyMap<OutputReference, {\n    destination: string;\n    format: string;\n}>;"
+      ],
+      "ManifestUnknownReason": [
+        "export type ManifestUnknownReason = (\"JSON_DUPLICATE_KEY\" | \"JSON_SYNTAX\") | \"UNRECOGNIZED_CONTENT\" | \"UNRESOLVABLE_URL\";"
+      ],
+      "OutputReference": [
+        "export interface OutputReference {\n    url: string;\n    usage: string;\n    urlEdit: Edit;\n    typeEdit?: Edit;\n    syntax?: \"json\" | \"srcset\";\n    group?: {\n        typeEdit?: Edit;\n        count: number;\n    };\n    readOnly?: boolean;\n}"
+      ],
+      "planManifestImages": [
+        "export declare function planManifestImages(text: string, options: ManifestPlanOptions): ManifestImagePlan;"
+      ],
+      "PlannedManifestReference": [
+        "export interface PlannedManifestReference {\n    reference: OutputReference;\n    file: string;\n    suffix: string;\n    readOnly: boolean;\n}"
+      ],
+      "PreparedImage": [
+        "export interface PreparedImage extends Omit<ResolvedImage, \"destination\" | \"url\"> {\n    suggestedDestination: string;\n    nameDigest: Digest;\n    attempts: readonly {\n        operation: \"minify\" | \"convert\" | \"override\";\n        format: \"avif\" | \"gif\" | \"jpeg\" | \"png\" | \"svg\" | \"webp\";\n        result: \"adopted\" | \"same-as-source\" | \"skipped-min-size\";\n        reason?: string;\n    }[];\n}"
+      ],
+      "PreparedInlineSvg": [
+        "export interface PreparedInlineSvg {\n    kind: typeof SVG_INLINE_KIND;\n    html: string;\n    hasIds: boolean;\n    source: string;\n}"
+      ],
+      "prepareInlineSvg": [
+        "export declare function prepareInlineSvg(svg: string, source?: string, settings?: SvgProcessingSettings): PreparedInlineSvg;"
+      ],
+      "ProcessingTrial": [
+        "export type ProcessingTrial = TrialSettings & ({\n    format: Exclude<ImageFormat, \"svg\" | \"ico\">;\n} | {\n    format: \"svg\";\n    svg: SvgProcessingSettings;\n    logicalPath: string;\n});"
+      ],
+      "Publication": [
+        "export interface Publication {\n    owner: string;\n    generated: boolean;\n    image: ResolvedImage;\n    used: boolean;\n}"
+      ],
+      "PublicationDocument": [
+        "export interface PublicationDocument {\n    file: string;\n    url: string;\n    encoding?: string;\n    references?: readonly {\n        url: string;\n        destination?: string;\n    }[];\n    usageReferences?: readonly PublicationUsageReference[];\n}"
+      ],
+      "PublicationUsageReference": [
+        "export interface PublicationUsageReference {\n    url: string;\n    usage: string;\n    mime?: string;\n}"
+      ],
+      "ResolvedImage": [
+        "export interface ResolvedImage {\n    destination: string;\n    url: string;\n    format: ImageFormat;\n    sourceDigest: Digest;\n    outputDigest: Digest;\n    bytes: Buffer;\n    trialKeys: readonly Digest[];\n}"
+      ],
+      "resolveReference": [
+        "export declare function resolveReference(url: string, document: string, base: string, siteOrigin?: string, baseHref?: string): {\n    file: string;\n    suffix: string;\n} | undefined;"
+      ],
+      "rewriteManifestImages": [
+        "export declare function rewriteManifestImages(text: string, references: readonly OutputReference[], selections: ReadonlyMap<OutputReference, {\n    destination: string;\n    format: string;\n}>, document: string, base: string, siteOrigin?: string): string;"
+      ],
+      "StoreTrialInput": [
+        "export interface StoreTrialInput {\n    file: string;\n    logicalName: string;\n    logicalPlacement: string;\n    usage: ImageUsage;\n    excludeConversion?: boolean;\n}"
+      ],
+      "SVG_PIPELINE_VERSION": ["export declare const SVG_PIPELINE_VERSION = 5;"],
+      "SVG_PRESERVE_ASPECT": ["export declare const SVG_PRESERVE_ASPECT = \"none\";"],
+      "SvgOptions": [
+        "export interface SvgOptions {\n    svgoConfig: SvgoConfig;\n    dimensionsMode?: \"round\" | \"none\";\n}"
+      ],
+      "SvgProcessingSettings": [
+        "export interface SvgProcessingSettings {\n    svgoConfig: unknown;\n    dimensionsMode: \"round\" | \"none\";\n}"
+      ],
+      "TrialSettings": [
+        "interface TrialSettings {\n    format: Exclude<ImageFormat, \"ico\">;\n    operation: \"minify\" | \"convert\" | \"override\";\n    options: object;\n    adoption: \"smaller\" | \"always\";\n}"
+      ],
+      "VerifyPublicationOptions": [
+        "export interface VerifyPublicationOptions {\n    deleted?: readonly string[];\n    deletionRules?: ReadonlyMap<string, readonly string[]>;\n    documents?: readonly PublicationDocument[];\n    publishedImages?: readonly {\n        destination: string;\n        digest: string;\n        owner?: string;\n        sourceDigest: string;\n        format: string;\n    }[];\n}"
+      ]
+    }
+  },
+  "watch": {
+    "exports": ["SourceWatchOptions", "createSourceEventHandler", "watchSources"],
+    "externalImports": {
+      "Sharp": ["sharp", "Sharp"],
+      "SvgoConfig": ["svgo", "Config"]
+    },
+    "declarations": {
+      "BitmapOptions": [
+        "export interface BitmapOptions {\n    png: NonNullable<Parameters<Sharp[\"png\"]>[0]>;\n    jpeg: NonNullable<Parameters<Sharp[\"jpeg\"]>[0]>;\n    gif: NonNullable<Parameters<Sharp[\"gif\"]>[0]>;\n    webp: NonNullable<Parameters<Sharp[\"webp\"]>[0]> & {\n        minSize?: boolean;\n    };\n    avif: NonNullable<Parameters<Sharp[\"avif\"]>[0]> & {\n        minSize?: boolean;\n    };\n}"
+      ],
+      "createSourceEventHandler": [
+        "export declare function createSourceEventHandler(options: SourceWatchOptions): {\n    ready: Promise<undefined>;\n    handle: (event: SourceEvent, file: string) => Promise<void>;\n    close(): Promise<void>;\n};"
+      ],
+      "FormatOptions": ["type FormatOptions = BitmapOptions & {\n    svg: SvgOptions;\n};"],
+      "ImageConfig": [
+        "export interface ImageConfig {\n    formats?: Partial<FormatOptions>;\n    dev?: {\n        autoMinify?: boolean;\n        ignoreAllAutoOptimize?: readonly string[];\n        customOverrides?: readonly ImageOverride[];\n    };\n    build?: {\n        outputFormat?: \"webp\" | \"avif\" | false;\n        ignoreSrcConversion?: readonly string[];\n        ignoreDistConversion?: readonly string[];\n        ignoreDistMinify?: readonly string[];\n        customOverridesDist?: readonly ImageOverride[];\n        preserveFormatFor?: readonly ImageUsage[];\n    };\n    jobs?: number;\n}"
+      ],
+      "ImageFormat": [
+        "export type ImageFormat = \"png\" | \"jpeg\" | \"gif\" | \"webp\" | \"avif\" | \"svg\" | \"ico\";"
+      ],
+      "ImageOverride": [
+        "export type ImageOverride = {\n    [Format in keyof FormatOptions]: {\n        match: string | RegExp;\n        format: Format;\n        options?: Format extends \"svg\" ? Partial<SvgOptions> : FormatOptions[Format];\n    };\n}[keyof FormatOptions];"
+      ],
+      "ImageUsage": ["export type ImageUsage = string;"],
+      "SourceEvent": ["type SourceEvent = \"add\" | \"change\" | \"unlink\";"],
+      "SourceOptions": [
+        "export interface SourceOptions {\n    projectRoot: string;\n    roots: readonly string[];\n    publicRoots: readonly string[];\n    cacheDir?: string;\n    allowMissingRoots?: boolean;\n    allowedRoots?: readonly string[];\n    sourceFormats?: readonly Exclude<ImageFormat, \"ico\">[];\n    sourceLockDir?: string;\n    sourceRecordLockPath?: string;\n    config?: ImageConfig;\n    signal?: AbortSignal;\n    onWarning?: (message: string) => void;\n}"
+      ],
+      "SourceWatchOptions": [
+        "export interface SourceWatchOptions extends SourceOptions {\n    onUpdate?: (file: string, event: SourceEvent) => void | Promise<void>;\n    onError?: (error: unknown) => void;\n}"
+      ],
+      "SvgOptions": [
+        "export interface SvgOptions {\n    svgoConfig: SvgoConfig;\n    dimensionsMode?: \"round\" | \"none\";\n}"
+      ],
+      "watchSources": [
+        "export declare function watchSources(options: SourceWatchOptions): {\n    ready: Promise<void>;\n    handle: (event: SourceEvent, file: string) => Promise<void>;\n    close: () => Promise<void>;\n};"
+      ]
+    }
+  }
+}
